@@ -1,9 +1,9 @@
 import { Schema, model } from "mongoose";
 
-const reviewSchema = mongoose.Schema(
+const reviewSchema = Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
@@ -28,7 +28,7 @@ const reviewSchema = mongoose.Schema(
 const productSchema = Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: "User",
     },
