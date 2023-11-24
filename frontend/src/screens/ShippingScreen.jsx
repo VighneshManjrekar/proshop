@@ -25,8 +25,9 @@ const ShippingScreen = () => {
     if (address && city && postalCode && country) {
       dispatch(saveShippingAddress({ address, city, postalCode, country }));
       navigate("/payment");
+    } else {
+      toast.error("All address fields are mandatory");
     }
-    toast.error("All address fields are mandatory");
   };
 
   return (
