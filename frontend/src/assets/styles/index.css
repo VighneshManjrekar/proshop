@@ -2,6 +2,15 @@ main {
   min-height: 80vh;
 }
 
+.shipping-address input::-webkit-outer-spin-button,
+.shipping-address input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.shipping-address input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .rating span {
   margin: 0.1rem;
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   Row,
   Col,
@@ -9,7 +10,6 @@ import {
   Button,
   Form,
 } from "react-bootstrap";
-import { useDispatch } from "react-redux";
 
 import { useGetProductQuery } from "../slices/productApiSlice";
 import { addToCart } from "../slices/cartSlice";
