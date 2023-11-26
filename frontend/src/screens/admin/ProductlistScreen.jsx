@@ -32,12 +32,14 @@ const ProductlistScreen = () => {
   };
 
   const handleDeleteBtn = async (id) => {
-    try {
-      await detelProduct(id);
-      refetch();
-    } catch (err) {
-      console.log(err);
-      toast.error(err.data?.message);
+    if (window.confirm("Are you sure?")) {
+      try {
+        await detelProduct(id);
+        refetch();
+      } catch (err) {
+        console.log(err);
+        toast.error(err.data?.message);
+      }
     }
   };
 
