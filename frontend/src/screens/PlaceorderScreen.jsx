@@ -1,14 +1,22 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
+import {
+  Button,
+  Row,
+  Col,
+  ListGroup,
+  ListGroupItem,
+  Image,
+  Card,
+} from "react-bootstrap";
 import { toast } from "react-toastify";
 
 import CheckoutSteps from "../components/CheckoutSteps";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { clearCartItems } from "../slices/cartSlice";
-import { useCreateOrderMutation } from "../slices/orderSlice";
+import { useCreateOrderMutation } from "../slices/orderApiSlice";
 
 const PlaceorderScreen = () => {
   const navigate = useNavigate();
@@ -33,11 +41,10 @@ const PlaceorderScreen = () => {
         shippingPrice: cart.shippingPrice,
         totalPrice: cart.totalPrice,
       }).unwrap();
-      console.log(res);
       dispatch(clearCartItems());
-      navigate(`/order/${order._id}`);
+      navigate(`/order/${res.order._id}`);
     } catch (err) {
-      toast.error(err.data?.message || error.error);
+      toast.error(err.data?.message || err?.error);
     }
   };
 
@@ -47,7 +54,7 @@ const PlaceorderScreen = () => {
       <Row>
         <Col md={8}>
           <ListGroup variant="flush">
-            <ListGroup.Item>
+            <ListGroupItem>
               <h2>Shipping</h2>
               <p>
                 <strong>Address:</strong>
@@ -55,20 +62,20 @@ const PlaceorderScreen = () => {
                 ${cart.shippingAddress.country}
                 ${cart.shippingAddress.postalCode}`}
               </p>
-            </ListGroup.Item>
-            <ListGroup.Item>
+            </ListGroupItem>
+            <ListGroupItem>
               <h2>Payment Method</h2>
               <strong>Method: </strong>
               {cart.paymentMethod}
-            </ListGroup.Item>
-            <ListGroup.Item>
+            </ListGroupItem>
+            <ListGroupItem>
               <h2>Order Items</h2>
               {cart.cartItems.length == 0 ? (
                 <Message>Your cart is empty</Message>
               ) : (
                 <ListGroup variant="flush">
                   {cart.cartItems.map((item, index) => (
-                    <ListGroup.Item key={index}>
+                    <ListGroupItem key={index}>
                       <Row>
                         <Col md={1}>
                           <Image
@@ -86,49 +93,49 @@ const PlaceorderScreen = () => {
                           {(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
-                    </ListGroup.Item>
+                    </ListGroupItem>
                   ))}
                 </ListGroup>
               )}
-            </ListGroup.Item>
+            </ListGroupItem>
           </ListGroup>
         </Col>
         <Col md={4}>
           <Card>
             <ListGroup variant="flush">
-              <ListGroup.Item>
+              <ListGroupItem>
                 <h2>Order Summary</h2>
-              </ListGroup.Item>
-              <ListGroup.Item>
+              </ListGroupItem>
+              <ListGroupItem>
                 <Row>
                   <Col>Items: </Col>
                   <Col>₹ {cart.itemsPrice}</Col>
                 </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
+              </ListGroupItem>
+              <ListGroupItem>
                 <Row>
                   <Col>Shipping: </Col>
                   <Col>₹ {cart.shippingPrice}</Col>
                 </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
+              </ListGroupItem>
+              <ListGroupItem>
                 <Row>
                   <Col>Tax: </Col>
                   <Col>₹ {cart.taxPrice}</Col>
                 </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
+              </ListGroupItem>
+              <ListGroupItem>
                 <Row>
                   <Col>Total: </Col>
                   <Col>₹ {cart.totalPrice}</Col>
                 </Row>
-              </ListGroup.Item>
+              </ListGroupItem>
               {error && (
-                <ListGroup.Item>
+                <ListGroupItem>
                   <Message variant="danger">{error}</Message>
-                </ListGroup.Item>
+                </ListGroupItem>
               )}
-              <ListGroup.Item>
+              <ListGroupItem>
                 <Button
                   type="button"
                   className="btn-block"
@@ -138,7 +145,7 @@ const PlaceorderScreen = () => {
                   Place Order
                 </Button>
                 {isLoading && <Loader />}
-              </ListGroup.Item>
+              </ListGroupItem>
             </ListGroup>
           </Card>
         </Col>
