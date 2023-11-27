@@ -24,6 +24,7 @@ import { addToCart } from "../slices/cartSlice";
 import Rating from "../components/Rating";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
+import Meta from "../components/Meta";
 
 const ProductScreen = () => {
   const { id: productId } = useParams();
@@ -81,6 +82,10 @@ const ProductScreen = () => {
         <Message variant="danger">{error.data?.message || error.error}</Message>
       ) : (
         <>
+          <Meta
+            title={data.product.name}
+            description={data.product.description}
+          />
           {data.product?.name ? (
             <Row>
               <Col xl lg={6} className="mb-3">

@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 import Paginate from "../components/Paginate";
 import Productcarousel from "../components/ProductCarousel";
+import Meta from "../components/Meta";
 
 const HomeScreen = () => {
   const { pageNumber, keyword } = useParams();
@@ -29,6 +30,7 @@ const HomeScreen = () => {
         <Message variant="danger">{error}</Message>
       ) : (
         <>
+          <Meta title="Proshop | Home" />
           <h1>Latest Products</h1>
           <Row className="justify-content-center justify-content-lg-start">
             {data.products.map((product) => (

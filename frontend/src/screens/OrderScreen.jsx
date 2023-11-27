@@ -10,23 +10,60 @@ import {
   Image,
 } from "react-bootstrap";
 import { toast } from "react-toastify";
+import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+
 import Message from "../components/Message";
 import Loader from "../components/Loader";
 
 import {
   useGetOrderDetailsQuery,
   useDeliveredOrderMutation,
+  useGetPayPalClientIdQuery,
+  usePayOrderMutation,
 } from "../slices/orderApiSlice";
+import { useEffect, useState } from "react";
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
   const { userInfo } = useSelector((state) => state.auth);
+  const [order, setOrder] = useState({});
 
   const { data, isLoading, isError, refetch, error } =
     useGetOrderDetailsQuery(orderId);
-
   const [deliveredOrder, { isLoading: deliverLoading }] =
     useDeliveredOrderMutation();
+  const [payOrder, { isLoading: isPaying }] = usePayOrderMutation();
+
+  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+  const {
+    data: paypalData,
+    isLoading: isPaypalLoading,
+    isError: isPaypalError,
+    error: paypalError,
+  } = useGetPayPalClientIdQuery();
+
+  useEffect(() => {
+    if (data) {
+      setOrder(data.order);
+    }
+    if (!paypalError && !isPaypalLoading && paypalData.clientId) {
+      const loadPayPalScript = async () => {
+        paypalDispatch({
+          type: "resetOptions",
+          value: {
+            clientId: paypalData.clientId,
+            currency: "USD",
+          },
+        });
+        paypalDispatch({ type: "setLoadingStatus", value: "pending" });
+      };
+      if (order && !order.isPaid) {
+        if (!window.paypal) {
+          loadPayPalScript();
+        }
+      }
+    }
+  }, [data, order, paypalData, paypalDispatch, isPaypalLoading, paypalError]);
 
   const handleDelivered = async () => {
     try {
@@ -38,6 +75,41 @@ const OrderScreen = () => {
       toast.error(err.data?.message || err.error);
     }
   };
+
+  const onApproveTest = async () => {
+    await payOrder({ orderId, details: { payer: {} } });
+    refetch();
+    toast.success("Payment Successful");
+  };
+
+  const onApprove = (data, actions) => {
+    return actions.order.capture().then(async function (details) {
+      try {
+        await payOrder({ orderId, details });
+        refetch();
+        toast.success("Payment Successful");
+      } catch (err) {
+        toast.error(err.data?.message || err.message || err.error);
+      }
+    });
+  };
+  const onError = (err) => {
+    toast.error(err.message);
+  };
+  const createOrder = (data, actions) => {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            amount: { value: order.totalPrice },
+          },
+        ],
+      })
+      .then((orderId) => {
+        return orderId;
+      });
+  };
+
 
   return isLoading ? (
     <Loader />
@@ -145,7 +217,32 @@ const OrderScreen = () => {
                   <Message variant="danger">{error}</Message>
                 </ListGroupItem>
               )}
-              {/* Pay order placeorder */}
+              {!data.order.isPaid && (
+                <ListGroupItem>
+                  {isPaypalLoading && order._id && <Loader />}
+                  {isPending && order._id ? (
+                    <Loader />
+                  ) : (
+                    <div>
+                      {/* <Button
+                        onClick={onApproveTest}
+                        style={{ marginBottom: "10px" }}
+                      >
+                        Test Pay Order
+                      </Button> */}
+                      <div>
+                        {order._id && (
+                          <PayPalButtons
+                            createOrder={createOrder}
+                            onApprove={onApprove}
+                            onError={onError}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </ListGroupItem>
+              )}
               {deliverLoading && <Loader />}
               {userInfo &&
                 userInfo.isAdmin &&

@@ -5,9 +5,10 @@ import { FaTimes, FaEye } from "react-icons/fa";
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
 import { useGetAllOrdersQuery } from "../../slices/orderApiSlice";
+import { useEffect, useState } from "react";
 
 const OrderlistScreen = () => {
-  const { data, isLoading, isError, refetch, error } = useGetAllOrdersQuery();
+  const { data, isLoading, isError, error } = useGetAllOrdersQuery();
   return (
     <>
       <h1>Orders</h1>
@@ -37,7 +38,7 @@ const OrderlistScreen = () => {
                 <td>{order.totalPrice}</td>
                 <td>
                   {order.isPaid ? (
-                    order.paidAt.substring(0, 10)
+                    order.paidAt?.substring(0, 10)
                   ) : (
                     <FaTimes style={{ color: "red" }} />
                   )}
