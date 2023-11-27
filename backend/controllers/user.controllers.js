@@ -79,26 +79,64 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 // @route   GET /api/users
 // @access  Private/Admin
 export const getUsers = asyncHandler(async (req, res, next) => {
-  res.send("Get users");
+  const users = await User.find({ _id: { $ne: req.user._id } }).select(
+    "-password"
+  );
+  res.status(200).json({ success: true, users });
 });
 
 // @desc    Get users by ID
 // @route   GET /api/users/:id
 // @access  Private/Admin
 export const getUserById = asyncHandler(async (req, res, next) => {
-  res.send("Get user by ID");
+  const user = await User.findById(req.params.id).select("-password");
+  if (!user) {
+    res.status(404);
+    throw new Error("Invalid user id");
+  }
+  res.status(200).json({ success: true, user });
 });
 
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
 export const deleteUsers = asyncHandler(async (req, res, next) => {
-  res.send("Delete user by Admin");
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error("Invalid user id");
+  }
+  if (user.isAdmin) {
+    res.status(400);
+    throw new Error("Cannot delete admin");
+  }
+  await User.deleteOne({ _id: req.params.id });
+  res.status(200).json({ success: true });
 });
 
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
 export const updateUser = asyncHandler(async (req, res, next) => {
-  res.send("Update user by Admin");
+  const user = await User.findById(req.params.id);
+  const { name, email, isAdmin } = req.body;
+  if (!user) {
+    res.status(404);
+    throw new Error("Invalid user id");
+  }
+
+  user.name = name || user.name;
+  user.email = email || user.email;
+  user.isAdmin = Boolean(isAdmin);
+
+  const updatedUser = await user.save();
+  user.name = res.status(200).json({
+    success: true,
+    user: {
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updateUser.isAdmin,
+    },
+  });
 });

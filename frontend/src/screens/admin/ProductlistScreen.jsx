@@ -17,7 +17,7 @@ const ProductlistScreen = () => {
   const [createProduct, { isLoading: isCreateProductLoading }] =
     useCreateProductMutation();
 
-  const [detelProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const handleCreateProduct = async () => {
     if (window.confirm("Add new product?")) {
@@ -34,7 +34,7 @@ const ProductlistScreen = () => {
   const handleDeleteBtn = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await detelProduct(id);
+        await deleteProduct(id);
         refetch();
       } catch (err) {
         console.log(err);
