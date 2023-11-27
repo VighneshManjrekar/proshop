@@ -1,19 +1,28 @@
 import { Row, Col } from "react-bootstrap";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 import { useGetProductsQuery } from "../slices/productApiSlice";
 import Product from "../components/Product";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import Paginate from "../components/Paginate";
+import Productcarousel from "../components/ProductCarousel";
 
 const HomeScreen = () => {
-  const { pageNumber } = useParams();
+  const { pageNumber, keyword } = useParams();
   const { data, isLoading, isError, error } = useGetProductsQuery({
     pageNumber,
+    keyword,
   });
   return (
     <>
+      {!keyword ? (
+        <Productcarousel />
+      ) : (
+        <Link to="/" className="btn btn-light mb-4">
+          Go Back
+        </Link>
+      )}
       {isLoading ? (
         <Loader />
       ) : isError ? (
@@ -30,6 +39,7 @@ const HomeScreen = () => {
             <Paginate
               pages={data.pages.total}
               currentPage={data.pages.current}
+              keyword={keyword}
             />
           </Row>
         </>

@@ -5,12 +5,23 @@ import asyncHandler from "../middleware/asyncHandler.js";
 // @route   GET /api/products
 // @access  Public
 export const getProducts = asyncHandler(async (req, res, next) => {
-  const pageSize = 4;
+  const pageSize = 1;
   const page = Number(req.query.pageNumber) || 1;
-  const count = await Product.countDocuments();
-  const products = await Product.find()
+  const keyword = req.query.keyword
+    ? { name: { $regex: req.query.keyword, $options: "i" } }
+    : {};
+  const count = await Product.countDocuments({ ...keyword });
+
+  const skip =
+    pageSize * (page - 1) >= count
+      ? count - pageSize < 0
+        ? 0
+        : count - pageSize
+      : pageSize * (page - 1);
+
+  const products = await Product.find({ ...keyword })
     .limit(pageSize)
-    .skip(pageSize * (page - 1));
+    .skip(skip);
 
   res.status(200).json({
     success: true,
@@ -133,4 +144,12 @@ export const createProductReview = asyncHandler(async (req, res, next) => {
   await product.save();
 
   res.status(200).json({ success: true, review });
+});
+
+// @desc    Get top products
+// @route   GET /api/products/top
+// @access  Public
+export const getTopProducts = asyncHandler(async (req, res, next) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  res.status(200).json({ success: true, products });
 });

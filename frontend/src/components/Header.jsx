@@ -7,6 +7,7 @@ import { FaShoppingCart, FaUser } from "react-icons/fa";
 import logo from "../assets/logo.png";
 import { useLogoutMutation } from "../slices/usersApiSlice";
 import { logout } from "../slices/authSlice";
+import Searchbox from "./Searchbox";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ const Header = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
+              <Searchbox />
               <LinkContainer to="/cart">
                 <Nav.Link>
                   <FaShoppingCart />
