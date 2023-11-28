@@ -34,6 +34,14 @@ const upload = multer({ storage, fileFilter });
 const uploadSingleImage = upload.single("image");
 
 router.post("/", (req, res) => {
+  if (process.env.NODE_ENV == "production") {
+    return res
+      .status(500)
+      .send({
+        message:
+          "Image storage not supported on render try this feature locally",
+      });
+  }
   uploadSingleImage(req, res, function (err) {
     if (err) {
       return res.status(400).send({ message: err.message });
