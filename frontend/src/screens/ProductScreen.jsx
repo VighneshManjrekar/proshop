@@ -14,6 +14,7 @@ import {
   FormSelect,
 } from "react-bootstrap";
 import { toast } from "react-toastify";
+import dateFormat from "dateformat";
 
 import {
   useGetProductQuery,
@@ -189,7 +190,7 @@ const ProductScreen = () => {
                   <ListGroupItem key={id}>
                     <strong>{r.name}</strong>
                     <Rating value={r.rating} />
-                    <p>{r.createdAt.substring(0, 10)}</p>
+                    <p>{dateFormat(r.createdAt, "fullDate")}</p>
                     <p>{r.comment}</p>
                   </ListGroupItem>
                 ))}

@@ -1,11 +1,11 @@
 import { Button, Table } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { FaTimes, FaEye } from "react-icons/fa";
+import dateFormat from "dateformat";
 
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
 import { useGetAllOrdersQuery } from "../../slices/orderApiSlice";
-import { useEffect, useState } from "react";
 
 const OrderlistScreen = () => {
   const { data, isLoading, isError, error } = useGetAllOrdersQuery();
@@ -34,18 +34,18 @@ const OrderlistScreen = () => {
               <tr key={id}>
                 <td>{order._id}</td>
                 <td>{order.user && order.user.name}</td>
-                <td>{order.createdAt.substring(0, 10)}</td>
+                <td>{dateFormat(order.createdAt, "d/m/yyyy")}</td>
                 <td>{order.totalPrice}</td>
                 <td>
                   {order.isPaid ? (
-                    order.paidAt?.substring(0, 10)
+                    dateFormat(order.paidAt, "d/m/yyyy")
                   ) : (
                     <FaTimes style={{ color: "red" }} />
                   )}
                 </td>
                 <td>
                   {order.isDelivered ? (
-                    order.deliveredAt.substring(0, 10)
+                    dateFormat(order.deliveredAt, "d/m/yyyy")
                   ) : (
                     <FaTimes style={{ color: "red" }} />
                   )}

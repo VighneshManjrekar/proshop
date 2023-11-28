@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { Form, Link, useParams } from "react-router-dom";
+import dateFormat from "dateformat";
 import {
   Button,
   Card,
@@ -110,7 +111,6 @@ const OrderScreen = () => {
       });
   };
 
-
   return isLoading ? (
     <Loader />
   ) : isError ? (
@@ -139,7 +139,11 @@ const OrderScreen = () => {
               </p>
               {data.order.isDelivered ? (
                 <Message variant="success">
-                  Delivered on {data.order.deliveredAt}
+                  Delivered on{" "}
+                  {dateFormat(
+                    data.order.deliveredAt,
+                    "dddd, mmmm dS, yyyy, h:MM:ss TT"
+                  )}
                 </Message>
               ) : (
                 <Message variant="danger">Not Delivered</Message>
@@ -151,7 +155,13 @@ const OrderScreen = () => {
                 <strong>Method {data.order.paymentMethod}</strong>
               </p>
               {data.order.isPaid ? (
-                <Message variant="success">Paid on {data.order.paidAt}</Message>
+                <Message variant="success">
+                  Paid on{" "}
+                  {dateFormat(
+                    data.order.paidAt,
+                    "dddd, mmmm dS, yyyy, h:MM:ss TT"
+                  )}
+                </Message>
               ) : (
                 <Message variant="danger">Not Paid</Message>
               )}
