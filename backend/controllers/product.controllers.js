@@ -1,3 +1,5 @@
+import path from "path";
+import { unlinkSync } from "fs";
 import Product from "../models/Product.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 
@@ -5,7 +7,7 @@ import asyncHandler from "../middleware/asyncHandler.js";
 // @route   GET /api/products
 // @access  Public
 export const getProducts = asyncHandler(async (req, res, next) => {
-  const pageSize = 1;
+  const pageSize = process.env.PAGINATION_LIMIT || 8;
   const page = Number(req.query.pageNumber) || 1;
   const keyword = req.query.keyword
     ? { name: { $regex: req.query.keyword, $options: "i" } }
@@ -95,12 +97,18 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
 export const deleteProduct = asyncHandler(async (req, res, next) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
+  const product = await Product.findById(req.params.id);
   if (!product) {
     res.status(404);
     throw new Error("Product not found");
+  } else {
+    const __dirname = path.resolve();
+    if (product.image.startsWith("/uploads")) {
+      unlinkSync(path.join(__dirname, product.image));
+    }
+    await Product.deleteOne({ _id: product._id });
+    res.status(200).json({ success: true });
   }
-  res.status(200).json({ success: true });
 });
 
 // @desc    Create new review
