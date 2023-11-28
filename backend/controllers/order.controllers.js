@@ -1,35 +1,44 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 import asyncHandler from "../middleware/asyncHandler.js";
+import { calcPrices } from "../utils/calcprice.js";
+import { verifyPayPalPayment, checkIfNewTransaction } from "../utils/paypal.js";
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 export const addOrderItems = asyncHandler(async (req, res, next) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    paymentResult,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-  } = req.body;
+  const { orderItems, shippingAddress, paymentMethod } = req.body;
 
   if (orderItems && orderItems.length == 0) {
     res.status(400);
     throw new Error("No order items");
   }
-  const order = new Order({
-    orderItems: orderItems.map((x) => ({
-      ...x,
-      product: x._id,
+  const itemsFromDB = await Product.find({
+    _id: { $in: orderItems.map((x) => x._id) },
+  });
+
+  const dbOrderItems = orderItems.map((itemFromClient) => {
+    const matchingItemFromDB = itemsFromDB.find(
+      (item) => item._id.toString() == itemFromClient._id
+    );
+
+    return {
+      ...itemFromClient,
+      product: itemFromClient._id,
+      price: matchingItemFromDB.price,
       _id: undefined,
-    })),
+    };
+  });
+
+  const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
+    calcPrices(dbOrderItems);
+
+  const order = new Order({
+    orderItems: dbOrderItems,
     user: req.user._id,
     shippingAddress,
     paymentMethod,
-    paymentResult,
     itemsPrice,
     taxPrice,
     shippingPrice,
@@ -67,18 +76,42 @@ export const getOrderById = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/orders/:id/pay
 // @access  Private
 export const updateOrderToPaid = asyncHandler(async (req, res, next) => {
-  const { id, status, update_time, email_address } = req.body;
+  // 1. Check if payment done
+  // 2. Check if verified payment is used before for verification
+  // 3. Check if correct amount is paid
+
+  const { verified, value } = await verifyPayPalPayment(req.body.id);
+  if (!verified) {
+    res.status(400);
+    throw new Error("Payment not verified");
+  }
+
+  const isNewTransaction = await checkIfNewTransaction(Order, req.body.id);
+  if (!isNewTransaction) {
+    res.status(400);
+    throw new Error("Transaction has been used before");
+  }
+
   const order = await Order.findById(req.params.id);
 
   if (!order) {
     order.status(404);
     throw new Error("Order not found");
   }
+  const paidCorrectAmount = order.totalPrice.toString() == value;
+  if (!paidCorrectAmount) {
+    res.statu(401);
+    throw new Error("Incorrect amount paid");
+  }
 
   order.isPaid = true;
   order.paidAt = Date.now();
-
-  order.paymentResult = { id, status, update_time, email_address };
+  order.paymentResult = {
+    id: req.body.id,
+    status: req.body.status,
+    update_time: req.body.update_time,
+    email_address: req.body.email_address,
+  };
 
   const updatedOrder = await order.save();
   res.status(200).json({ success: true, data: updatedOrder });
