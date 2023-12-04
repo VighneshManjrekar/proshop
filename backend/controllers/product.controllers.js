@@ -98,6 +98,20 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 export const deleteProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
+  if (process.env.NODE_ENV === "production") {
+    const isAdminProduct = [
+      "6566321c94d4bf2ceced890d",
+      "6566321c94d4bf2ceced890e",
+      "6566321c94d4bf2ceced890f",
+      "6566321c94d4bf2ceced8910",
+      "6566321c94d4bf2ceced8911",
+      "6566321c94d4bf2ceced8912",
+    ].includes(req.params.id);
+    if (isAdminProduct) {
+      res.status(400);
+      throw new Error("Cannot delete default admin products");
+    }
+  }
   if (!product) {
     res.status(404);
     throw new Error("Product not found");

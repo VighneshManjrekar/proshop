@@ -41,7 +41,8 @@ const ProductlistScreen = () => {
   const handleDeleteBtn = async (id) => {
     if (window.confirm("Are you sure?")) {
       try {
-        await deleteProduct(id);
+        const res = await deleteProduct(id).unwrap();
+        toast.success("Product deleted");
         refetch();
       } catch (err) {
         console.log(err);
@@ -114,6 +115,7 @@ const ProductlistScreen = () => {
           />
         </>
       )}
+      <p>To add new product click create product button and then edit the product. Deleting default products is forbidden.</p>
     </>
   );
 };
