@@ -42,8 +42,7 @@ proshop is a full-stack MERN (MongoDB, Express.js, React, Node.js) application w
    npm install
 
    # Install client dependencies
-   cd frontend
-   npm install
+   npm install --prefix frontend
    ```
 
 3. **Set up environment variables:**
