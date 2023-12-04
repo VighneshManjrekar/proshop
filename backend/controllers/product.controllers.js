@@ -98,7 +98,7 @@ export const updateProduct = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 export const deleteProduct = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV !== "development") {
     const isAdminProduct = [
       "6566321c94d4bf2ceced890d",
       "6566321c94d4bf2ceced890e",

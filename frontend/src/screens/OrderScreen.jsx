@@ -180,7 +180,7 @@ const OrderScreen = () => {
                       />
                     </Col>
                     <Col>
-                      <Link to={`/product/${item._id}`}>{item.name}</Link>
+                      <Link to={`/product/${item.product}`}>{item.name}</Link>
                     </Col>
                     <Col md={4}>
                       {item.qty} x ₹{item.price.toFixed(2)} = ₹
